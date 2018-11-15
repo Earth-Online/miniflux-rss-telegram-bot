@@ -17,7 +17,6 @@ DISPATCHER = UPDATER.dispatcher
 
 START_HANDLER = CommandHandler('start', start)
 BIND_HANDLER = CommandHandler('bind', bind, pass_args=True)
-GET_ENTRIES_HANDLET = CommandHandler('get_entries', get_entries, pass_args=True)
 HELP_HANDLET = CommandHandler('help', help)
 IMPORT_HANDLET = MessageHandler(Filters.document, import_feed)
 
@@ -27,7 +26,7 @@ DISPATCHER.add_handler(new_user)
 DISPATCHER.add_handler(add_feed)
 DISPATCHER.add_handler(export)
 DISPATCHER.add_handler(discover)
-DISPATCHER.add_handler(GET_ENTRIES_HANDLET)
+DISPATCHER.add_handler(get_entries)
 DISPATCHER.add_handler(HELP_HANDLET)
 DISPATCHER.add_handler(me)
 DISPATCHER.add_handler(delete_feed)

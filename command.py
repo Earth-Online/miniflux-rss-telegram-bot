@@ -112,11 +112,10 @@ def import_feed(bot, update):
 
 
 @bot_function(arg_num=0)
-def export(bot, update):
+def export(bot, update, _, client):
     """
     usage: /export
     """
-    client = new_client(update.message.chat_id)
     _ = client.export()
     opml_file = io.BytesIO(bytes(_, 'utf-8'))
     bot.send_document(
@@ -127,7 +126,7 @@ def export(bot, update):
 
 
 @bot_function(arg_num=1)
-def discover(bot, update, args):
+def discover(bot, update, args, client):
     """
     usage: /discover url
     """
@@ -139,7 +138,7 @@ def discover(bot, update, args):
 
 
 @bot_function(arg_num=1)
-def get_entries(bot, update, args):
+def get_entries(bot, update, args, client):
     """
     usage: /get_entries num
     """
