@@ -7,4 +7,13 @@ __pycache__
 # ctags
 tags
 
+# conf
+config.py
+
+# coverall
+.coverage
+
+# rope
+.ropeproject
+
 

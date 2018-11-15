@@ -1,14 +1,15 @@
-#coding:utf-8
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import logging
 import os
 from telegram.ext import Updater
-from telegram.ext import CommandHandler,MessageHandler, Filters
+from telegram.ext import CommandHandler, MessageHandler, Filters
 from command import *
 from help import help
 from error import UserNotBindError
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                     level=logging.INFO)
+                    level=logging.INFO)
 
 TOKEN = os.environ.get('token')
 UPDATER = Updater(token=TOKEN)
@@ -43,4 +44,5 @@ DISPATCHER.add_handler(get_feed_entries)
 DISPATCHER.add_handler(bookmark)
 
 if __name__ == "__main__":
+    logging.info("bot run start ")
     UPDATER.start_polling()

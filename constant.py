@@ -1,4 +1,3 @@
-#coding:utf-8
 
 REFRESH_OK_MSG = '''
 刷新成功
@@ -30,8 +29,10 @@ NO_BIND_MSG = '''
 你还没有绑定用户
 '''
 
+USER_OR_PASS_ERROE_MSG = '''
+用户或密码错误
+'''
+
 ID_NO_INT_MSG = '''
 id 必须是一个整数
 '''
-
-

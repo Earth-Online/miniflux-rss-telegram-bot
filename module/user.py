@@ -1,5 +1,5 @@
 #coding:utf-8
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
@@ -13,4 +13,6 @@ class User(Base):
     id = Column(String(20), primary_key=True)
     username = Column(String(20))
     password = Column(String(32))
+    # 默认category
+    category_id = Column(Integer)
 
