@@ -40,3 +40,12 @@ def get_categoryid(chat_id: str, session=DBSession):
     session.close()
     return user.category_id
 
+def change_categoryid(chat_id: str, category_id: str, session=DBSession):
+    """
+    """
+    session = session()
+    user = session.query(User).filter(User.id == chat_id).first()
+    user.category_id = category_id 
+    session.commit()
+    return user.category_id
+

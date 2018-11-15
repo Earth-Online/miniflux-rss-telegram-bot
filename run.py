@@ -42,6 +42,8 @@ DISPATCHER.add_handler(refresh_feed)
 DISPATCHER.add_handler(update_category)
 DISPATCHER.add_handler(get_feed_entries)
 DISPATCHER.add_handler(bookmark)
+DISPATCHER.add_handler(get_default_categoryid)
+DISPATCHER.add_handler(change_default_categoryid)
 
 if __name__ == "__main__":
     logging.info("bot run start ")

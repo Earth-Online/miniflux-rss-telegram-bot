@@ -6,7 +6,7 @@ from client import new_client
 from tool import bot_function
 from constant import *
 from telegram import InputFile
-from client import new_client, bind_user, get_categoryid
+from client import new_client, bind_user, get_categoryid, change_categoryid
 from module import DBSession
 from module.user import User
 from config import admin_client
@@ -53,6 +53,22 @@ def new_user(bot, update, args, client):
     client.create_user(args[0], args[1], False)
     bot.send_message(chat_id=update.message.chat_id, text=CREATE_OK_MSG)
 
+
+@bot_function(arg_num=1)
+def change_default_categoryid(bot, update, args,  _):
+    """
+    usage: /change_default_categoryid  categoryid
+    """
+    change_categoryid(update.message.chat_id, args[0])
+    bot.send_message(chat_id=update.message.chat_id, text=UPDATE_OK_MSG)
+
+@bot_function(arg_num=0)
+def get_default_categoryid(bot, update, args,  _):
+    """
+    usage: /get_default_categoryid
+    """
+    category_id = get_categoryid(update.message.chat_id)
+    bot.send_message(chat_id=update.message.chat_id, text=category_id)
 
 @bot_function(arg_num=1)
 def add_feed(bot, update, args, client):
