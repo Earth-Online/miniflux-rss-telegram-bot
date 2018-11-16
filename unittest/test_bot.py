@@ -43,9 +43,9 @@ def test_new_client_error():
 
 def test_bot_function():
     @bot_function(0)
-    def test():
+    def test(*args):
         """test"""
-        pass
+        bot.send_message('test')
     assert isinstance(test,CommandHandler)
     # if not, help_doc == ''
     from tool import help_doc
