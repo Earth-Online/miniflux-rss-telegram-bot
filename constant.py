@@ -36,3 +36,7 @@ USER_OR_PASS_ERROE_MSG = '''
 ID_NO_INT_MSG = '''
 id 必须是一个整数
 '''
+
+EntryStatusUnread       = "unread"
+EntryStatusRead         = "read"
+EntryStatusRemoved      = "removed"

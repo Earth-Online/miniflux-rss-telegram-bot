@@ -39,3 +39,8 @@ def bot_function(arg_num=0, admin=False):
             help_doc = help_doc + func.__doc__
         return CommandHandler(func.__name__, wrapper, pass_args=bool(arg_num))
     return decorator
+
+def mark_read(client, entry):
+    ids = [entry['id'] for entry in entrys]
+    client.update_entries(ids, EntryStatusRead)
+    return 

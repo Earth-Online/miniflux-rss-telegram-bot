@@ -3,7 +3,7 @@ import io
 import telegram
 from inspect import *
 from client import new_client
-from tool import bot_function
+from tool import bot_function, mark_read
 from constant import *
 from telegram import InputFile
 from client import new_client, bind_user, get_categoryid, change_categoryid
@@ -42,7 +42,9 @@ def bind(bot, update, args):
         bind_user(update.message.chat_id, *args)
         bot.send_message(chat_id=update.message.chat_id, text=BIND_OK_MSG)
     except UserOrPassError:
-        bot.send_message(chat_id=update.message.chat_id, text=USER_OR_PASS_ERROE_MSG)
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text=USER_OR_PASS_ERROE_MSG)
 
 
 @bot_function(arg_num=2, admin=True)
@@ -62,6 +64,7 @@ def change_default_categoryid(bot, update, args,  _):
     change_categoryid(update.message.chat_id, args[0])
     bot.send_message(chat_id=update.message.chat_id, text=UPDATE_OK_MSG)
 
+
 @bot_function(arg_num=0)
 def get_default_categoryid(bot, update, args,  _):
     """
@@ -69,6 +72,7 @@ def get_default_categoryid(bot, update, args,  _):
     """
     category_id = get_categoryid(update.message.chat_id)
     bot.send_message(chat_id=update.message.chat_id, text=category_id)
+
 
 @bot_function(arg_num=1)
 def add_feed(bot, update, args, client):
@@ -81,7 +85,9 @@ def add_feed(bot, update, args, client):
     else:
         category_id = args[1]
         if not category_id.isdecimal():
-            bot.send_message(chat_id=update.message.chat_id, text=ID_NO_INT_MSG)
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text=ID_NO_INT_MSG)
             return
     client.create_feed(args[0], category_id)
     bot.send_message(chat_id=update.message.chat_id, text=ADD_FEED_OK_MSG)
@@ -142,12 +148,11 @@ def get_entries(bot, update, args, client):
     """
     usage: /get_entries num
     """
-    ret = client.get_entries(limit=args[0])
+    ret = client.get_entries(limit=args[0], status=EntryStatusUnread)
     for _ in ret['entries']:
-        bot.send_message(
-            chat_id=update.message.chat_id,
-            text=_['url'],
-            parse_mode=telegram.ParseMode.HTML)
+        send_text = "{title} {url}".format(title=_['title'], url=_['url'])
+        bot.send_message(chat_id=update.message.chat_id, text=send_text)
+    mark_read(client, ret)
 
 
 @bot_function(arg_num=0)
@@ -228,8 +233,11 @@ def get_feed(bot, update, args, client):
     usage:/get_feed feed_id
     """
     ret = client.get_feed(args[0])
-    bot.send_message(chat_id=update.message.chat_id,
-                     text="url {} title {}\n".format(ret['site_url'], ret['title']))
+    bot.send_message(
+        chat_id=update.message.chat_id,
+        text="url {} title {}\n".format(
+            ret['site_url'],
+            ret['title']))
 
 
 @bot_function(arg_num=1)
@@ -246,9 +254,14 @@ def get_feed_entries(bot, update, args, client):
     """
     usage:/get_feed_entries feed_id num
     """
-    ret = client.get_feed_entries(args[0], limit=args[1])
+    ret = client.get_feed_entries(
+        args[0],
+        limit=args[1],
+        status=EntryStatusUnread)
     for _ in ret:
-        bot.send_message(chat_id=update.message.chat_id, text=_['url'])
+        send_text = "{title} {url}".format(title=_['title'], url=_['url'])
+        bot.send_message(chat_id=update.message.chat_id, text=send_text)
+    mark_read(client, ret)
 
 
 @bot_function(arg_num=1)
