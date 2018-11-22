@@ -5,7 +5,7 @@ ENV port="8080"
 ENV username="admin"
 ENV password="123456"
 ENV token="111111111:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-ADD . /opt/bot
+COPY . /opt/bot
 WORKDIR /opt/bot
 RUN  apk --no-cache --virtual build  add build-base libffi-dev openssl-dev && pip install -r requirements.txt && rm -rf ~/.pip/ && apk del build 
 CMD ["python","run.py"]
