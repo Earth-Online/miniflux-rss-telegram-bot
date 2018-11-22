@@ -143,16 +143,19 @@ def discover(bot, update, args, client):
             ret[0]['url']))
 
 
-@bot_function(arg_num=1)
+@bot_function(arg_num=0)
 def get_entries(bot, update, args, client):
     """
     usage: /get_entries num
     """
-    ret = client.get_entries(limit=args[0], status=EntryStatusUnread)
+    num = 5
+    if len(args):
+        num = args[0]
+    ret = client.get_entries(limit=num, status=EntryStatusUnread)
     for _ in ret['entries']:
         send_text = "{title} {url}".format(title=_['title'], url=_['url'])
         bot.send_message(chat_id=update.message.chat_id, text=send_text)
-    mark_read(client, ret)
+    mark_read(client, ret['entries'])
 
 
 @bot_function(arg_num=0)
@@ -209,7 +212,7 @@ def delete_category(bot, update, args, client):
 @bot_function(arg_num=0)
 def delete_user(bot, update, _, client):
     """
-    usage: /delte_user
+    delete_user - delete your user
     """
     user_id = client.me()['id']
     ret = admin_client.delete_user(user_id)
@@ -219,7 +222,7 @@ def delete_user(bot, update, _, client):
 @bot_function(arg_num=0)
 def get_feeds(bot, update, _, client):
     """
-    usage:/get_feeds
+    get_feeds - get yous feed info
     """
     ret = client.get_feeds()
     for _ in ret:
@@ -230,7 +233,7 @@ def get_feeds(bot, update, _, client):
 @bot_function(arg_num=1)
 def get_feed(bot, update, args, client):
     """
-    usage:/get_feed feed_id
+    get_feed - arg <feed_id>; get feed_id feed info
     """
     ret = client.get_feed(args[0])
     bot.send_message(
@@ -243,7 +246,7 @@ def get_feed(bot, update, args, client):
 @bot_function(arg_num=1)
 def refresh_feed(bot, update, args, client):
     """
-    usage:/refresh_feed feed_id
+    refresh - arg <feed_id>; refresh feed_id feed
     """
     ret = client.refresh_feed(args[0])
     bot.send_message(chat_id=update.message.chat_id, text=REFRESH_OK_MSG)
@@ -258,10 +261,10 @@ def get_feed_entries(bot, update, args, client):
         args[0],
         limit=args[1],
         status=EntryStatusUnread)
-    for _ in ret:
+    for _ in ret['entries']:
         send_text = "{title} {url}".format(title=_['title'], url=_['url'])
         bot.send_message(chat_id=update.message.chat_id, text=send_text)
-    mark_read(client, ret)
+    mark_read(client, ret['entries'])
 
 
 @bot_function(arg_num=1)

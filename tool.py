@@ -40,7 +40,7 @@ def bot_function(arg_num=0, admin=False):
         return CommandHandler(func.__name__, wrapper, pass_args=bool(arg_num))
     return decorator
 
-def mark_read(client, entry):
+def mark_read(client, entrys):
     ids = [entry['id'] for entry in entrys]
     client.update_entries(ids, EntryStatusRead)
     return 
