@@ -9,6 +9,7 @@ from help import help
 from error import UserNotBindError
 from client import cron_send
 from cron import scheduler
+import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -49,5 +50,5 @@ DISPATCHER.add_handler(change_default_categoryid)
 if __name__ == "__main__":
     logging.info("bot run start ")
     UPDATER.start_polling()
-    scheduler.add_job(cron_send,'interval',minutes=1)
+    scheduler.add_job(cron_send,'interval',minutes=5)
     scheduler.start()

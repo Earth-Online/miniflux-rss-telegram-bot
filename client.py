@@ -67,18 +67,36 @@ def cron_send(session=DBSession):
                         password=user.password)
 
         try:
-            ret = client.get_entries(status=EntryStatusUnread, limit=30)['entries']
+            ret = client.get_entries(
+                status=EntryStatusUnread,
+                limit=30)['entries']
         except ClientError as e:
             session.close()
             return
         TOKEN = os.environ.get('token')
         bot = telegram.Bot(token=TOKEN)
-        for _ in ret:
-            send_text = "{title} {url}".format(title=_['title'], url=_['url'])
-            bot.send_message(chat_id=user.id, text=send_text)
+        send_entry(bot, user.id, ret)
         ids = [entry['id'] for entry in ret]
         try:
             client.update_entries(ids, EntryStatusRead)
         except ClientError as e:
             pass
     session.close()
+
+
+def send_entry(bot, user_id, entrys):
+    message = ""
+    for index, value in zip(range(len(entrys)), entrys):
+        send_text = "{title} <a>{url}</a> \n".format(
+            title=value['title'], url=value['url'])
+        message = message+send_text
+        if index % 5 == 0:
+            bot.send_message(
+                chat_id=user_id, text=message,
+                parse_mode=telegram.ParseMode.HTML)
+            message = ""
+    if message != '':
+        bot.send_message(
+            chat_id=user_id,
+            text=message,
+            parse_mode=telegram.ParseMode.HTML)
