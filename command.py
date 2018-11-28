@@ -3,28 +3,22 @@ import io
 import telegram
 from inspect import *
 from client import new_client
-from tool import bot_function, mark_read
+from tool import bot_function 
 from constant import *
 from telegram import InputFile
 from client import (new_client, bind_user, get_categoryid,
-                    change_categoryid, send_entry)
+                    change_categoryid, send_entry, mark_read)
 from module import DBSession
 from module.user import User
-from config import admin_client
+from config import admin_client, DEFAULT_GET_NUM
 from miniflux import ClientError
 from error import UserNotBindError, UserOrPassError
 
 
 def start(bot, update):
     """
-    欢迎使用rss机器人,使用/help获取更多帮助
     """
-    bot.send_message(
-        chat_id=update.message.chat_id,
-        text=getdoc(
-            globals()[
-                getframeinfo(
-                    currentframe()).function]))
+    bot.send_message(chat_id=update.message.chat_id, text=START_MSG)
 
 
 def bind(bot, update, args):
@@ -51,7 +45,7 @@ def bind(bot, update, args):
 @bot_function(arg_num=2, admin=True)
 def new_user(bot, update, args, client):
     """
-    new_user - arg <username> <password> create new account
+    new_user - arg <username> <password> create new account and bind
     """
     client.create_user(args[0], args[1], False)
     bot.send_message(chat_id=update.message.chat_id, text=CREATE_OK_MSG)
@@ -80,16 +74,13 @@ def add_feed(bot, update, args, client):
     """
     addfeed - arg <url> [category_id]  add a feed
     """
-    category_id = None
-    if len(args) == 1:
-        category_id = get_categoryid(update.message.chat_id)
-    else:
-        category_id = args[1]
-        if not category_id.isdecimal():
-            bot.send_message(
-                chat_id=update.message.chat_id,
-                text=ID_NO_INT_MSG)
-            return
+    category_id = args[1] if len(
+        args) > 1 else get_categoryid(update.message.chat_id)
+    if not category_id.isdecimal():
+        bot.send_message(
+            chat_id=update.message.chat_id,
+            text=ID_NO_INT_MSG)
+        return
     client.create_feed(args[0], category_id)
     bot.send_message(chat_id=update.message.chat_id, text=ADD_FEED_OK_MSG)
 
@@ -148,9 +139,7 @@ def get_entries(bot, update, args, client):
     """
     get_entries - arg <num>  get yous feed new post
     """
-    num = 5
-    if len(args):
-        num = args[0]
+    num = args[0] if len(args) else DEFAULT_GET_NUM 
     ret = client.get_entries(limit=num, status=EntryStatusUnread)
     send_entry(bot, update.message.chat_id, ret['entries'])
     mark_read(client, ret['entries'])
@@ -250,16 +239,18 @@ def refresh_feed(bot, update, args, client):
     bot.send_message(chat_id=update.message.chat_id, text=REFRESH_OK_MSG)
 
 
-@bot_function(arg_num=2)
+@bot_function(arg_num=1)
 def get_feed_entries(bot, update, args, client):
     """
-    get_feed_entries - arg <feed_id> <num>
+    get_feed_entries - arg <feed_id> [num]
     """
-
+    num = DEFAULT_GET_NUM
+    if len(args) > 1:
+        num = args[1]
     ret = client.get_feed_entries(
         args[0],
-        limit=args[1],
-        status=EntryStatusUnread) 
+        limit=num,
+        status=EntryStatusUnread)
     send_entry(bot, update.message.chat_id, ret['entries'])
     mark_read(client, ret['entries'])
 

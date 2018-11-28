@@ -3,10 +3,9 @@ from typing import Callable
 import logging
 from error import UserNotBindError
 from constant import *
-from client import new_client
+from client import new_client, admin_client
 from telegram.ext import CommandHandler
 from miniflux import ClientError
-from config import admin_client
 
 global help_doc
 help_doc = ''
@@ -40,7 +39,3 @@ def bot_function(arg_num=0, admin=False):
         return CommandHandler(func.__name__, wrapper, pass_args=bool(arg_num))
     return decorator
 
-def mark_read(client, entrys):
-    ids = [entry['id'] for entry in entrys]
-    client.update_entries(ids, EntryStatusRead)
-    return 

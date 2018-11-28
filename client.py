@@ -1,12 +1,15 @@
 # coding:utf-8
 import telegram
 import os
+from typing import List
 from module import DBSession
 from module.user import User
 from error import UserNotBindError, UserNotFoundError, UserOrPassError
 from constant import EntryStatusRead, EntryStatusUnread
 from miniflux import Client, ClientError
-from config import SERBER_ADDR
+from config import SERBER_ADDR, DEFAULT_PAGE_NUM, USERNAME, PASSWORD
+
+admin_client = miniflux.Client(SERBER_ADDR, USERNAME, PASSWORD)
 
 
 def new_client(user_id: str, session=DBSession) -> Client:
@@ -84,13 +87,13 @@ def cron_send(session=DBSession):
     session.close()
 
 
-def send_entry(bot, user_id, entrys):
+def send_entry(bot: telegram.Bot, user_id: str, entrys: List[dict]):
     message = ""
-    for index, value in zip(range(len(entrys)), entrys):
+    for index, value in zip(range(1, len(entrys)), entrys):
         send_text = "{title} <a>{url}</a> \n".format(
             title=value['title'], url=value['url'])
         message = message+send_text
-        if index % 5 == 0:
+        if index % DEFAULT_PAGE_NUM == 0:
             bot.send_message(
                 chat_id=user_id, text=message,
                 parse_mode=telegram.ParseMode.HTML)
@@ -100,3 +103,9 @@ def send_entry(bot, user_id, entrys):
             chat_id=user_id,
             text=message,
             parse_mode=telegram.ParseMode.HTML)
+
+
+def mark_read(client: Client, entrys: List[dict]) -> None:
+    ids = [entry['id'] for entry in entrys]
+    client.update_entries(ids, EntryStatusRead)
+    return

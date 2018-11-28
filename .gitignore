@@ -9,11 +9,18 @@ tags
 
 # conf
 config.py
+.env
+.pylintrc
 
 # coverall
 .coverage
+coverage.xml
 
 # rope
 .ropeproject
 
+# test
+test/
 
+# git
+.gitignore

@@ -1,4 +1,7 @@
 
+START_MSG = '''
+欢迎使用rss机器人,使用/help获取更多帮助
+'''
 REFRESH_OK_MSG = '''
 刷新成功
 '''

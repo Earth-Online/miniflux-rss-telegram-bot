@@ -9,12 +9,11 @@ from help import help
 from error import UserNotBindError
 from client import cron_send
 from cron import scheduler
-import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
+from config import TOKEN
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
-TOKEN = os.environ.get('token')
 UPDATER = Updater(token=TOKEN)
 DISPATCHER = UPDATER.dispatcher
 
