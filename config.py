@@ -10,7 +10,10 @@ USERNAME = os.environ.get('username') or 'admin'
 
 PASSWORD  = os.environ.get('password') or '123456'
 
-# pylint: disable=invalid-name 
-admin_client = miniflux.Client("http://{host}:{port}".format(host=HOST,port=PORT), USERNAME, PASSWORD)
+TOKEN = os.environ.get('token')
+
+DEFAULT_GET_NUM = 5
+
+DEFAULT_PAGE_NUM = 5
 
 SERBER_ADDR = "http://{host}:{port}".format(host=HOST,port=PORT)
