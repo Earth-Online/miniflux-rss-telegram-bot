@@ -9,7 +9,7 @@ from constant import EntryStatusRead, EntryStatusUnread
 from miniflux import Client, ClientError
 from config import SERBER_ADDR, DEFAULT_PAGE_NUM, USERNAME, PASSWORD
 
-admin_client = miniflux.Client(SERBER_ADDR, USERNAME, PASSWORD)
+admin_client = Client(SERBER_ADDR, USERNAME, PASSWORD)
 
 
 def new_client(user_id: str, session=DBSession) -> Client:

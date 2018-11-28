@@ -10,7 +10,7 @@ from client import (new_client, bind_user, get_categoryid,
                     change_categoryid, send_entry, mark_read)
 from module import DBSession
 from module.user import User
-from config import admin_client, DEFAULT_GET_NUM
+from config import DEFAULT_GET_NUM
 from miniflux import ClientError
 from error import UserNotBindError, UserOrPassError
 
