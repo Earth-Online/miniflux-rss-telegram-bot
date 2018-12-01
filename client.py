@@ -62,7 +62,7 @@ def change_categoryid(chat_id: str, category_id: str, session=DBSession):
     return user.category_id
 
 
-def cron_send(session=DBSession):
+def cron_send(bot, job, session=DBSession):
     session = session()
     users = session.query(User).all()
     for user in users:
@@ -76,8 +76,6 @@ def cron_send(session=DBSession):
         except ClientError as e:
             session.close()
             return
-        TOKEN = os.environ.get('token')
-        bot = telegram.Bot(token=TOKEN)
         send_entry(bot, user.id, ret)
         ids = [entry['id'] for entry in ret]
         try:

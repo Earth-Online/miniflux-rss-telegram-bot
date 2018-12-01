@@ -16,4 +16,6 @@ DEFAULT_GET_NUM = 5
 
 DEFAULT_PAGE_NUM = 5
 
+DEFAULT_CHECK_TIME = 5*60
+
 SERBER_ADDR = "http://{host}:{port}".format(host=HOST,port=PORT)

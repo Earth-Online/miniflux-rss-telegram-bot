@@ -19,5 +19,7 @@ services:
       - host=miniflux
       - port=8080
     env_file: .env
+    volumes:
+      - bot-db:/opt/bot/data
 volumes:
   miniflux-db:

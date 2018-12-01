@@ -72,11 +72,11 @@ def get_default_categoryid(bot, update, args,  _):
 @bot_function(arg_num=1)
 def add_feed(bot, update, args, client):
     """
-    addfeed - arg <url> [category_id]  add a feed
+    add_feed - arg <url> [category_id]  add a feed
     """
     category_id = args[1] if len(
         args) > 1 else get_categoryid(update.message.chat_id)
-    if not category_id.isdecimal():
+    if not str(category_id).isdecimal():
         bot.send_message(
             chat_id=update.message.chat_id,
             text=ID_NO_INT_MSG)

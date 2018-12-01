@@ -24,3 +24,7 @@ test/
 
 # git
 .gitignore
+
+# Docker
+.env
+
