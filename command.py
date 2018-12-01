@@ -271,3 +271,10 @@ def update_category(bot, update, args, client):
     """
     ret = client.update_category(args[0], args[1])
     bot.send_message(chat_id=update.message.chat_id, text=UPDATE_OK_MSG)
+
+def url_handle(bot, update):
+    client = new_client(update.message.chat_id)
+    category_id = get_categoryid(update.message.chat_id)
+    client.create_feed(update.message.text, category_id)
+    bot.send_message(chat_id=update.message.chat_id, text=ADD_FEED_OK_MSG)
+
