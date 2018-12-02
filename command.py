@@ -13,7 +13,7 @@ from module.user import User
 from config import DEFAULT_GET_NUM
 from miniflux import ClientError
 from error import UserNotBindError, UserOrPassError
-from send import format_feed_info, format_user_info
+from send import format_feed_info, format_user_info, format_category_info, format_feeds_info
 
 def start(bot, update):
     """
@@ -130,7 +130,7 @@ def get_entries(bot, update, args, client):
 
 
 @bot_function(arg_num=0)
-def me(bot, update, args, client):  # pylint:disable=invalid-name,unused-argument
+def me(bot, update, _, client):  # pylint:disable=invalid-name,unused-argument
     """
     me - get yous account info
     """
@@ -156,7 +156,7 @@ def get_categories(bot, update, _, client):
     ret = client.get_categories()
     ret_text = ''
     for i in ret:
-        ret_text = ret_text + 'id:{} title:{}\n'.format(i['id'], i['title'])
+        ret_text = ret_text + format_category_info(i) 
     bot.send_message(chat_id=update.message.chat_id, text=ret_text)
 
 
@@ -194,9 +194,9 @@ def get_feeds(bot, update, _, client):
     get_feeds - get yous feed info
     """
     ret = client.get_feeds()
-    for _ in ret:
+    for _ in format_feeds_info(ret):
         bot.send_message(chat_id=update.message.chat_id,
-                         text=format_feed_info(_))
+                         text=_)
 
 @bot_function(arg_num=1)
 def get_feed(bot, update, args, client):

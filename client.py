@@ -7,7 +7,9 @@ from module.user import User
 from error import UserNotBindError, UserNotFoundError, UserOrPassError
 from constant import EntryStatusRead, EntryStatusUnread
 from miniflux import Client, ClientError
-from config import SERBER_ADDR, DEFAULT_PAGE_NUM, USERNAME, PASSWORD
+from config import (SERBER_ADDR, DEFAULT_PAGE_NUM, USERNAME,
+                    PASSWORD, DEFAULT_SEND_LIMIE)
+from send import format_feed, format_feeds
 
 admin_client = Client(SERBER_ADDR, USERNAME, PASSWORD)
 
@@ -72,31 +74,16 @@ def cron_send(bot, job, session=DBSession):
         try:
             ret = client.get_entries(
                 status=EntryStatusUnread,
-                limit=30)['entries']
+                limit=DEFAULT_SEND_LIMIE)['entries']
         except ClientError as e:
-            session.close()
-            return
+            continue
         send_entry(bot, user.id, ret)
-        ids = [entry['id'] for entry in ret]
-        try:
-            client.update_entries(ids, EntryStatusRead)
-        except ClientError as e:
-            pass
+        mark_read(client, ret)
     session.close()
 
 
 def send_entry(bot: telegram.Bot, user_id: str, entrys: List[dict]):
-    message = ""
-    for index, value in zip(range(1, len(entrys)), entrys):
-        send_text = "{title} <a>{url}</a> \n".format(
-            title=value['title'], url=value['url'])
-        message = message+send_text
-        if index % DEFAULT_PAGE_NUM == 0:
-            bot.send_message(
-                chat_id=user_id, text=message,
-                parse_mode=telegram.ParseMode.HTML)
-            message = ""
-    if message != '':
+    for message in format_feeds(entrys):
         bot.send_message(
             chat_id=user_id,
             text=message,
@@ -104,6 +91,7 @@ def send_entry(bot: telegram.Bot, user_id: str, entrys: List[dict]):
 
 
 def mark_read(client: Client, entrys: List[dict]) -> None:
+    if not len(entrys):
+        return
     ids = [entry['id'] for entry in entrys]
     client.update_entries(ids, EntryStatusRead)
-    return

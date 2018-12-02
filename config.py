@@ -18,4 +18,6 @@ DEFAULT_PAGE_NUM = 5
 
 DEFAULT_CHECK_TIME = 5*60
 
+DEFAULT_SEND_LIMIE = 30
+
 SERBER_ADDR = "http://{host}:{port}".format(host=HOST,port=PORT)
