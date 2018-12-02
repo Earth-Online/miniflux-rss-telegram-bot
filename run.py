@@ -7,7 +7,7 @@ from telegram.ext import CommandHandler, MessageHandler, Filters
 from telegram import MessageEntity
 from command import *
 from help import help
-from error import UserNotBindError
+from error import UserNotBindError, error_handle
 from client import cron_send
 from config import TOKEN, DEFAULT_CHECK_TIME
 
@@ -24,10 +24,9 @@ BIND_HANDLER = CommandHandler('bind', bind, pass_args=True)
 HELP_HANDLET = CommandHandler('help', help)
 IMPORT_HANDLET = MessageHandler(Filters.document, import_feed)
 URL_HANDLER = MessageHandler(
-    Filters.entity(MessageEntity.URL) | Filters.entity(MessageEntity.TEXT_LINK),
+    Filters.entity(MessageEntity.URL),
     url_handle)
 
-DISPATCHER.add_handler(URL_HANDLER)
 DISPATCHER.add_handler(START_HANDLER)
 DISPATCHER.add_handler(BIND_HANDLER)
 DISPATCHER.add_handler(new_user)
@@ -51,7 +50,8 @@ DISPATCHER.add_handler(get_feed_entries)
 DISPATCHER.add_handler(bookmark)
 DISPATCHER.add_handler(get_default_categoryid)
 DISPATCHER.add_handler(change_default_categoryid)
-
+DISPATCHER.add_handler(URL_HANDLER)
+DISPATCHER.add_error_handler(error_handle)
 JOB.run_repeating(cron_send, interval=DEFAULT_CHECK_TIME, first=0)
 
 if __name__ == "__main__":

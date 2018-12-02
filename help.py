@@ -8,7 +8,8 @@ def get_module_function__doc(module):
     name_func_tuples = [t[1] for t in name_func_tuples if inspect.getmodule(t[1]) == module]
     tmp = ''
     for _ in name_func_tuples:
-        tmp = tmp+_.__doc__
+        if _.__doc__:
+            tmp = tmp+_.__doc__
     return help_doc+tmp
 
 def help(bot, update): 

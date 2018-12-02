@@ -13,7 +13,7 @@ from module.user import User
 from config import DEFAULT_GET_NUM
 from miniflux import ClientError
 from error import UserNotBindError, UserOrPassError
-
+from send import format_feed_info, format_user_info
 
 def start(bot, update):
     """
@@ -33,13 +33,8 @@ def bind(bot, update, args):
                     getframeinfo(
                         currentframe()).function]))
         return
-    try:
-        bind_user(update.message.chat_id, *args)
-        bot.send_message(chat_id=update.message.chat_id, text=BIND_OK_MSG)
-    except UserOrPassError:
-        bot.send_message(
-            chat_id=update.message.chat_id,
-            text=USER_OR_PASS_ERROE_MSG)
+    bind_user(update.message.chat_id, *args)
+    bot.send_message(chat_id=update.message.chat_id, text=BIND_OK_MSG)
 
 
 @bot_function(arg_num=2, admin=True)
@@ -91,22 +86,11 @@ def import_feed(bot, update):
     """
     if not update.document.file_name.split('.')[-1] != 'opml':
         return
-    try:
-        client = new_client(update.message.chat_id)
-    except UserNotBindError:
-        bot.send_message(chat_id=update.message.chat_id, text=NO_BIND_MSG)
-        return
-
+    client = new_client(update.message.chat_id)
     file_id = update.message.document.file_id
     newFile = bot.get_file(file_id)
     data = newFile.download_as_bytearray()
-    try:
-        client.import_feeds(data.decode())
-    except ClientError as error:
-        bot.send_message(
-            chat_id=update.message.chat_id,
-            text=error.get_error_reason())
-        return
+    client.import_feeds(data.decode())
 
 
 @bot_function(arg_num=0)
@@ -151,9 +135,7 @@ def me(bot, update, args, client):  # pylint:disable=invalid-name,unused-argumen
     me - get yous account info
     """
     ret = client.me()
-    ret_text = '''
-     ID {} 用户名 {}
-    '''.format(ret['id'], ret['username'])
+    ret_text = format_user_info(ret)
     bot.send_message(chat_id=update.message.chat_id, text=ret_text)
 
 
@@ -214,8 +196,7 @@ def get_feeds(bot, update, _, client):
     ret = client.get_feeds()
     for _ in ret:
         bot.send_message(chat_id=update.message.chat_id,
-                         text="id {} title {}\n".format(_['id'], _['title']))
-
+                         text=format_feed_info(_))
 
 @bot_function(arg_num=1)
 def get_feed(bot, update, args, client):
@@ -225,10 +206,7 @@ def get_feed(bot, update, args, client):
     ret = client.get_feed(args[0])
     bot.send_message(
         chat_id=update.message.chat_id,
-        text="url {} title {}\n".format(
-            ret['site_url'],
-            ret['title']))
-
+        text = format_feed_info(ret))
 
 @bot_function(arg_num=1)
 def refresh_feed(bot, update, args, client):
