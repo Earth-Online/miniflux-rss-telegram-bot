@@ -27,6 +27,9 @@ DELETE_OK_MSG = '''
 删除成功
 '''
 
+NO_INFO_MSG = '''
+没有一些新东西
+'''
 
 NO_BIND_MSG = '''
 你还没有绑定用户
@@ -39,6 +42,7 @@ USER_OR_PASS_ERROE_MSG = '''
 ID_NO_INT_MSG = '''
 id 必须是一个整数
 '''
+
 
 EntryStatusUnread       = "unread"
 EntryStatusRead         = "read"

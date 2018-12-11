@@ -84,14 +84,14 @@ def import_feed(bot, update):
     """
     发送opml文件将会导入
     """
-    if not update.document.file_name.split('.')[-1] != 'opml':
+
+    if update.message.document.file_name.split('.')[-1] != 'opml':
         return
     client = new_client(update.message.chat_id)
     file_id = update.message.document.file_id
     newFile = bot.get_file(file_id)
     data = newFile.download_as_bytearray()
-    client.import_feeds(data.decode())
-
+    client.import_feeds(data)
 
 @bot_function(arg_num=0)
 def export(bot, update, _, client):
@@ -125,6 +125,9 @@ def get_entries(bot, update, args, client):
     """
     num = args[0] if len(args) else DEFAULT_GET_NUM 
     ret = client.get_entries(limit=num, status=EntryStatusUnread)
+    if not len(ret['entries']):
+        bot.send_message(chat_id=update.message.chat_id, text=NO_INFO_MSG)
+        return
     send_entry(bot, update.message.chat_id, ret['entries'])
     mark_read(client, ret['entries'])
 
@@ -145,7 +148,7 @@ def delete_feed(bot, update, args, client):
     delete_feed - arg <feed_id> delete a feed
     """
     client.delete_feed(args[0])
-    bot.send_message(chat_id=update.message.chat_id, text=DELETE_FEED_OK_MSG)
+    bot.send_message(chat_id=update.message.chat_id, text=DELETE_OK_MSG)
 
 
 @bot_function(arg_num=0)

@@ -84,10 +84,11 @@ def cron_send(bot, job, session=DBSession):
 
 def send_entry(bot: telegram.Bot, user_id: str, entrys: List[dict]):
     for message in format_feeds(entrys):
-        bot.send_message(
-            chat_id=user_id,
-            text=message,
-            parse_mode=telegram.ParseMode.HTML)
+        if message:
+            bot.send_message(
+                chat_id=user_id,
+                text=message,
+                parse_mode=telegram.ParseMode.HTML)
 
 
 def mark_read(client: Client, entrys: List[dict]) -> None:

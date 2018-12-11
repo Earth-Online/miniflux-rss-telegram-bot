@@ -11,7 +11,7 @@ def format_feed_info(feed):
 def format_feeds_info(feeds):
     for i in range(0, len(feeds), DEFAULT_PAGE_NUM):
         send_text = ""
-        for feed in feeds[i:DEFAULT_PAGE_NUM]:
+        for feed in feeds[i:i+DEFAULT_PAGE_NUM]:
             send_text = send_text + format_feed_info(feed)+"\n"
         yield send_text
 
@@ -32,7 +32,7 @@ def format_feed(feed):
 def format_feeds(feeds):
     for i in range(0, len(feeds), DEFAULT_PAGE_NUM):
         send_text = ""
-        for feed in feeds[i:DEFAULT_PAGE_NUM]:
+        for feed in feeds[i:i+DEFAULT_PAGE_NUM]:
             send_text = send_text + format_feed(feed)+"\n"
         yield send_text
 

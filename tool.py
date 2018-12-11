@@ -18,8 +18,11 @@ def bot_function(arg_num=0, admin=False):
                 bot.send_message(chat_id=update.message.chat_id, text=func.__doc__)
                 return
             client = new_client(update.message.chat_id) if not admin else admin_client
-            logging.debug(func.__name__)
-            func(bot, update, args, client)
+            try:
+                logging.debug(func.__name__)
+                func(bot, update, args, client)
+            except UserNotBindError:
+                bot.send_message(chat_id=update.message.chat_id, text=NO_BIND_MSG)
         global help_doc
         if func.__doc__:
             help_doc = help_doc + func.__doc__
