@@ -1,22 +1,44 @@
 # coding:utf-8
+"""
+error class
+"""
 import logging
 from constant import *
 from miniflux import ClientError
+from telegram import Bot, Update
 
 
 class UserNotBindError(Exception):
+    """
+    user not bind a miniflux account
+    """
     pass
 
 
 class UserNotFoundError(Exception):
+    """
+    not found this user
+    """
     pass
 
 
 class UserOrPassError(Exception):
+    """
+    miniflux account or password error
+    """
     pass
 
 
 def error_handle(bot, update, error):
+    """telegram bot errror handle
+
+    :param bot: telegram Bot Instance
+    :param update: telegram Update Instance
+    :param error:  code error
+    :type error: Exception
+    :type update: Update
+    :type bot:  Bot
+    """
     try:
         raise error
     except UserOrPassError:

@@ -6,31 +6,22 @@ services:
       - db
     environment:
       - DATABASE_URL=postgres://miniflux:secret@db/miniflux?sslmode=disable
+    ports:
+      - "10000:8080"
   db:
     image: postgres:10.1
     environment:
       - POSTGRES_USER=miniflux
       - POSTGRES_PASSWORD=secret
     volumes:
-      - miniflux-db:/var/lib/postgresql/data
-  bot:
-    build: .
-    depends_on:
-      - fluentd
-    environment:
-      - host=miniflux
-      - port=8080
-    env_file: .env
-    volumes:
-      - bot-db:/opt/bot/data
+      - dev-miniflux-db:/var/lib/postgresql/data
   fluentd:
     image: fluent/fluentd:v1.3-debian
     volumes:
-      - fluentd-db:/fluentd/log
+      - dev-fluentd-db:/fluentd/log
     ports:
-      -  "9292:9292"
-
+      - "24224:24224"
+      - "24224:24224/udp"
 volumes:
-  miniflux-db:
-  bot-db:
-  fluentd-db:
+  dev-miniflux-db:
+  dev-fluentd-db:

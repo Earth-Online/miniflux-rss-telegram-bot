@@ -3,9 +3,10 @@ import io
 import telegram
 from inspect import *
 from client import new_client
-from tool import bot_function 
+from tool import (command_wrap, check_args, send_text,
+                  get_client, check_bind)
 from constant import *
-from telegram import InputFile
+from telegram import InputFile, MessageEntity
 from client import (new_client, bind_user, get_categoryid,
                     change_categoryid, send_entry, mark_read)
 from module import DBSession
@@ -15,56 +16,67 @@ from miniflux import ClientError
 from error import UserNotBindError, UserOrPassError
 from send import format_feed_info, format_user_info, format_category_info, format_feeds_info
 
+
+@command_wrap()
+@send_text
 def start(bot, update):
     """
     """
-    bot.send_message(chat_id=update.message.chat_id, text=START_MSG)
+    return START_MSG
 
 
+@command_wrap(pass_args=True)
+@check_args(num=2)
+@send_text
 def bind(bot, update, args):
     """
     bind - args:<username> <password> bind your account
     """
-    if len(args) != 2:
-        bot.send_message(
-            chat_id=update.message.chat_id,
-            text=getdoc(
-                globals()[
-                    getframeinfo(
-                        currentframe()).function]))
-        return
-    bind_user(update.message.chat_id, *args)
-    bot.send_message(chat_id=update.message.chat_id, text=BIND_OK_MSG)
+    try:
+        bind_user(update.message.chat_id, *args)
+    except UserOrPassError:
+        return USER_OR_PASS_ERROE_MSG
+    return BIND_OK_MSG
 
 
-@bot_function(arg_num=2, admin=True)
+@command_wrap(pass_args=True)
+@check_args(num=2)
+@get_client(admin=True)
 def new_user(bot, update, args, client):
     """
     new_user - arg <username> <password> create new account and bind
     """
     client.create_user(args[0], args[1], False)
-    bot.send_message(chat_id=update.message.chat_id, text=CREATE_OK_MSG)
+    return CREATE_OK_MSG
 
 
-@bot_function(arg_num=1)
-def change_default_categoryid(bot, update, args,  _):
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@send_text
+def change_default_categoryid(bot, update, args):
     """
     change_default_categoryid - arg <categoryid> change default categoryid
     """
     change_categoryid(update.message.chat_id, args[0])
-    bot.send_message(chat_id=update.message.chat_id, text=UPDATE_OK_MSG)
+    return UPDATE_OK_MSG
 
 
-@bot_function(arg_num=0)
-def get_default_categoryid(bot, update, args,  _):
+@command_wrap()
+@check_bind
+@send_text
+def get_default_categoryid(bot, update):
     """
     get_default_categoryid - get default category_id
     """
     category_id = get_categoryid(update.message.chat_id)
-    bot.send_message(chat_id=update.message.chat_id, text=category_id)
+    return category_id
 
 
-@bot_function(arg_num=1)
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@get_client()
 def add_feed(bot, update, args, client):
     """
     add_feed - arg <url> [category_id]  add a feed
@@ -76,7 +88,7 @@ def add_feed(bot, update, args, client):
             chat_id=update.message.chat_id,
             text=ID_NO_INT_MSG)
         return
-    client.create_feed(args[0], category_id)
+    client.create_feed(args[0], category_id, crawler=True)
     bot.send_message(chat_id=update.message.chat_id, text=ADD_FEED_OK_MSG)
 
 
@@ -84,7 +96,6 @@ def import_feed(bot, update):
     """
     发送opml文件将会导入
     """
-
     if update.message.document.file_name.split('.')[-1] != 'opml':
         return
     client = new_client(update.message.chat_id)
@@ -92,9 +103,13 @@ def import_feed(bot, update):
     newFile = bot.get_file(file_id)
     data = newFile.download_as_bytearray()
     client.import_feeds(data)
+    bot.send_message(chat_id=update.message.chat_id, text=ADD_FEED_OK_MSG)
 
-@bot_function(arg_num=0)
-def export(bot, update, _, client):
+
+@command_wrap()
+@check_bind
+@get_client()
+def export(bot, update, client):
     """
     export - export yous feed to a file
     """
@@ -107,24 +122,30 @@ def export(bot, update, _, client):
     opml_file.close()
 
 
-@bot_function(arg_num=1)
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@get_client()
 def discover(bot, update, args, client):
     """
     discover - arg <url>  try discover a site feed address and add
     """
     ret = client.discover(args[0])
     category_id = get_categoryid(update.message.chat_id)
-    client.create_feed(ret[0]['url'], category_id)
+    client.create_feed(ret[0]['url'], category_id, crawler=True)
     bot.send_message(chat_id=update.message.chat_id, text=ADD_FEED_OK_MSG)
 
 
-@bot_function(arg_num=0)
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(default=[DEFAULT_GET_NUM])
+@get_client()
 def get_entries(bot, update, args, client):
     """
     get_entries - arg <num>  get yous feed new post
     """
-    num = args[0] if len(args) else DEFAULT_GET_NUM 
-    ret = client.get_entries(limit=num, status=EntryStatusUnread)
+    num = args[0]
+    ret = client.get_entries(limit=num , status=EntryStatusUnread)
     if not len(ret['entries']):
         bot.send_message(chat_id=update.message.chat_id, text=NO_INFO_MSG)
         return
@@ -132,8 +153,10 @@ def get_entries(bot, update, args, client):
     mark_read(client, ret['entries'])
 
 
-@bot_function(arg_num=0)
-def me(bot, update, _, client):  # pylint:disable=invalid-name,unused-argument
+@command_wrap()
+@check_bind
+@get_client()
+def me(bot, update, client):
     """
     me - get yous account info
     """
@@ -142,28 +165,37 @@ def me(bot, update, _, client):  # pylint:disable=invalid-name,unused-argument
     bot.send_message(chat_id=update.message.chat_id, text=ret_text)
 
 
-@bot_function(arg_num=1)
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@get_client()
+@send_text
 def delete_feed(bot, update, args, client):
     """
     delete_feed - arg <feed_id> delete a feed
     """
     client.delete_feed(args[0])
-    bot.send_message(chat_id=update.message.chat_id, text=DELETE_OK_MSG)
+    return DELETE_OK_MSG
 
 
-@bot_function(arg_num=0)
-def get_categories(bot, update, _, client):
+@command_wrap()
+@check_bind
+@get_client()
+def get_categories(bot, update, client):
     """
     get_categories - get yous categories
     """
     ret = client.get_categories()
     ret_text = ''
     for i in ret:
-        ret_text = ret_text + format_category_info(i) 
+        ret_text = ret_text + format_category_info(i)
     bot.send_message(chat_id=update.message.chat_id, text=ret_text)
 
 
-@bot_function(arg_num=1)
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@get_client()
 def create_category(bot, update, args, client):
     """
     create_categories - arg <title> create category
@@ -172,7 +204,10 @@ def create_category(bot, update, args, client):
     bot.send_message(chat_id=update.message.chat_id, text=CREATE_OK_MSG)
 
 
-@bot_function(arg_num=1)
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@get_client()
 def delete_category(bot, update, args, client):
     """
     delete_category - args <id> delete a category
@@ -181,8 +216,10 @@ def delete_category(bot, update, args, client):
     bot.send_message(chat_id=update.message.chat_id, text=DELETE_OK_MSG)
 
 
-@bot_function(arg_num=0)
-def delete_user(bot, update, _, client):
+@command_wrap()
+@check_bind
+@get_client()
+def delete_user(bot, update,client):
     """
     delete_user - delete your user
     """
@@ -191,8 +228,10 @@ def delete_user(bot, update, _, client):
     bot.send_message(chat_id=update.message.chat_id, text=DELETE_OK_MSG)
 
 
-@bot_function(arg_num=0)
-def get_feeds(bot, update, _, client):
+@command_wrap()
+@check_bind
+@get_client()
+def get_feeds(bot, update, client):
     """
     get_feeds - get yous feed info
     """
@@ -201,7 +240,11 @@ def get_feeds(bot, update, _, client):
         bot.send_message(chat_id=update.message.chat_id,
                          text=_)
 
-@bot_function(arg_num=1)
+
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@get_client()
 def get_feed(bot, update, args, client):
     """
     get_feed - arg <feed_id>; get feed_id feed info
@@ -209,9 +252,13 @@ def get_feed(bot, update, args, client):
     ret = client.get_feed(args[0])
     bot.send_message(
         chat_id=update.message.chat_id,
-        text = format_feed_info(ret))
+        text=format_feed_info(ret))
 
-@bot_function(arg_num=1)
+
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@get_client()
 def refresh_feed(bot, update, args, client):
     """
     refresh - arg <feed_id> refresh feed_id feed
@@ -220,14 +267,15 @@ def refresh_feed(bot, update, args, client):
     bot.send_message(chat_id=update.message.chat_id, text=REFRESH_OK_MSG)
 
 
-@bot_function(arg_num=1)
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1, default=[None, DEFAULT_GET_NUM])
+@get_client()
 def get_feed_entries(bot, update, args, client):
     """
     get_feed_entries - arg <feed_id> [num]
     """
-    num = DEFAULT_GET_NUM
-    if len(args) > 1:
-        num = args[1]
+    num = args[1]
     ret = client.get_feed_entries(
         args[0],
         limit=num,
@@ -236,7 +284,10 @@ def get_feed_entries(bot, update, args, client):
     mark_read(client, ret['entries'])
 
 
-@bot_function(arg_num=1)
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@get_client()
 def bookmark(bot, update, args, client):
     """
     bookmark - arg <id> bookmark
@@ -245,7 +296,10 @@ def bookmark(bot, update, args, client):
     bot.send_message(chat_id=update.message.chat_id, text=MARK_OK_MSG)
 
 
-@bot_function(arg_num=2)
+@command_wrap(pass_args=True)
+@check_bind
+@check_args(num=1)
+@get_client()
 def update_category(bot, update, args, client):
     """
     update_category - args <category_id> <title>
@@ -253,9 +307,10 @@ def update_category(bot, update, args, client):
     ret = client.update_category(args[0], args[1])
     bot.send_message(chat_id=update.message.chat_id, text=UPDATE_OK_MSG)
 
-def url_handle(bot, update):
-    client = new_client(update.message.chat_id)
+@check_bind
+@get_client()
+def url_handle(bot, update, client):
     category_id = get_categoryid(update.message.chat_id)
-    client.create_feed(update.message.text, category_id)
+    for url in update.message.parse_entities(types=MessageEntity.URL).values():
+        client.create_feed(update.message.text, category_id)
     bot.send_message(chat_id=update.message.chat_id, text=ADD_FEED_OK_MSG)
-

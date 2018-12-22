@@ -7,6 +7,6 @@ ENV password="123456"
 ENV token="111111111:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 COPY . /opt/bot
 WORKDIR /opt/bot
-RUN  apk --no-cache --virtual build  add build-base libffi-dev openssl-dev && pip install -r requirements.txt && rm -rf ~/.pip/ && apk del build 
+RUN  apk --no-cache --virtual build  add build-base libffi-dev openssl-dev git && apk add libxslt-dev && pip install -r requirements.txt && rm -rf ~/.pip/ && apk del build 
 CMD ["python","run.py"]
 
