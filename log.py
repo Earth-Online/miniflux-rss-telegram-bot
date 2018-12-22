@@ -1,7 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-module docs
+log module
+.. data:: custom_format 
+    fluent log format
+.. data:: log
+    logger
 """
 
 import logging
@@ -19,7 +23,9 @@ custom_format = {
 }
 
 def init_log():
-
+    """
+    init log system
+    """
     logging.basicConfig(level=LOG_LEVEL)
     logger = logging.getLogger(LOGNAME)
 
@@ -29,17 +35,18 @@ def init_log():
         log_handler = handler.FluentHandler(
             'rssbot', host=FLUENT_HOST, port=FLUENT_PORT)
         formatter = FluentRecordFormatter(custom_format)
+        log_handler.setFormatter(formatter)
     else:
         log_handler= StreamHandler()
 
-    formatter = handler.FluentRecordFormatter(custom_format)
-    log_handler.setFormatter(formatter)
     logger.addHandler(log_handler)
-    log = logger
 
 
 
 def get_logger():
+    """
+    get a fluent logger
+    """
     return logging.getLogger(LOGNAME)
 
 log = get_logger()

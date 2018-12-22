@@ -66,6 +66,7 @@ def format_category_info(category):
 
 
 def fix_html(htmltext):
+
     htmlxml = html.fragments_fromstring(htmltext)
     for tag in htmlxml:
         # TODO if tag not have text.will error
@@ -87,7 +88,7 @@ def send_telegraph(feed):
         ret = telegraph.create_page(
             feed['title'], html_content=fix_html(feed['content']))
     except ParsingException as e:
-        log.warning("url:"+feed['url']+" "+str(e))
+        log.warning("url:"+feed['url']+" "+str(e)+fix_html(feed['content']))
         return ''
     except TelegraphException as e:
         log.warning("url:"+feed['url']+" "+str(e))

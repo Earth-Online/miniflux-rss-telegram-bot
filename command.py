@@ -88,7 +88,7 @@ def add_feed(bot, update, args, client):
             chat_id=update.message.chat_id,
             text=ID_NO_INT_MSG)
         return
-    client.create_feed(args[0], category_id, crawler=True)
+    client.create_feed(args[0], int(category_id))
     bot.send_message(chat_id=update.message.chat_id, text=ADD_FEED_OK_MSG)
 
 
@@ -132,7 +132,7 @@ def discover(bot, update, args, client):
     """
     ret = client.discover(args[0])
     category_id = get_categoryid(update.message.chat_id)
-    client.create_feed(ret[0]['url'], category_id, crawler=True)
+    client.create_feed(ret[0]['url'], int(category_id),)
     bot.send_message(chat_id=update.message.chat_id, text=ADD_FEED_OK_MSG)
 
 
@@ -304,7 +304,7 @@ def update_category(bot, update, args, client):
     """
     update_category - args <category_id> <title>
     """
-    ret = client.update_category(args[0], args[1])
+    ret = client.update_category(int(args[0]), args[1])
     bot.send_message(chat_id=update.message.chat_id, text=UPDATE_OK_MSG)
 
 @check_bind

@@ -6,6 +6,7 @@ import logging
 from constant import *
 from miniflux import ClientError
 from telegram import Bot, Update
+from log import log
 
 
 class UserNotBindError(Exception):
@@ -40,6 +41,7 @@ def error_handle(bot, update, error):
     :type bot:  Bot
     """
     try:
+        log.error(error)
         raise error
     except UserOrPassError:
         bot.send_message(

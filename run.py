@@ -3,6 +3,7 @@
 import logging
 import os
 import sentry_sdk
+from sentry_sdk import configure_scope
 from requests.exceptions import RequestException
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, MessageHandler, Filters
@@ -42,6 +43,8 @@ def init():
         log.info("not debug")
         if SENTRY_URL:
             log.info(SENTRY_OPEN)
+            with configure_scope() as scope:
+                scope.user = {"id": TOKEN.split(":"[0])}
             sentry_sdk.init(SENTRY_URL)
 
 
