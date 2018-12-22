@@ -1,3 +1,7 @@
 SQLAlchemy
+lxml
 python_telegram_bot
 miniflux
+sentry-sdk==0.6.2
+fluent-logger
+-e git+https://github.com/Earth-Online/telegraph#egg=telegraph

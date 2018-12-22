@@ -4,10 +4,17 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+sentry-sdk = "==0.6.2"
+telegraph = {git = "https://github.com/Earth-Online/telegraph"}
+lxml = "*"
+fluent-logger = "*"
+miniflux = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 pytest = "*"
 ipdb = "*"
+sphinx = "*"
 
 [requires]
 python_version = "3.7"

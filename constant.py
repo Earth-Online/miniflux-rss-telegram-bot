@@ -1,4 +1,14 @@
 
+# start log info
+NO_TOKEN_MSG = "缺少bot token or telegraph token"
+ADMIN_ERROR = "miniflux 账号错误"
+SERVER_ERROR = "miniflux 系统错误"
+SENTRY_OPEN = "启用sentry"
+
+# log
+LOGNAME = "fluent.rssbot"
+
+
 START_MSG = '''
 欢迎使用rss机器人,使用/help获取更多帮助
 '''
@@ -44,6 +54,6 @@ id 必须是一个整数
 '''
 
 
-EntryStatusUnread       = "unread"
-EntryStatusRead         = "read"
-EntryStatusRemoved      = "removed"
+EntryStatusUnread = "unread"
+EntryStatusRead = "read"
+EntryStatusRemoved = "removed"
