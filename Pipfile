@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-sentry-sdk = "==0.6.2"
+sentry-sdk = "==0.7.4"
 telegraph = {git = "https://github.com/Earth-Online/telegraph"}
 lxml = "*"
 fluent-logger = "*"
