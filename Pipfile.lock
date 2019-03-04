@@ -127,10 +127,10 @@
         },
         "sqlalchemy": {
             "hashes": [
-                "sha256:809547455d012734b4252081db1e6b4fc731de2299f3755708c39863625e1c77"
+                "sha256:8027fa183f5be466030617a497b2d64e0e16c8d615e5a34bdf9fab6f66bf4723"
             ],
             "index": "pypi",
-            "version": "==1.2.15"
+            "version": "==1.2.18"
         },
         "telegraph": {
             "git": "https://github.com/Earth-Online/telegraph",
